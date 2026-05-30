@@ -2,7 +2,7 @@
 
 DOMAIN = "homepilot"
 DEFAULT_PORT = 80
-SCAN_INTERVAL = 30  # seconds
+SCAN_INTERVAL = 15  # seconds
 
 API_DEVICES = "/deviceajax.do?devices=1"
 
