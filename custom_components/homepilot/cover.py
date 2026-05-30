@@ -15,7 +15,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CMD_DOWN, CMD_STOP, CMD_UP, DEVICE_GROUP_COVER, DOMAIN
+from .const import CID_CLOSE, CID_OPEN, CID_STOP, DEVICE_GROUP_COVER, DOMAIN
 from .coordinator import HomepilotCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -108,13 +108,13 @@ class HomepilotCover(CoordinatorEntity[HomepilotCoordinator], CoverEntity):
         return False
 
     async def async_open_cover(self, **kwargs) -> None:
-        await self.coordinator.async_send_command(self._did, CMD_UP)
+        await self.coordinator.async_send_command(self._did, CID_OPEN)
 
     async def async_close_cover(self, **kwargs) -> None:
-        await self.coordinator.async_send_command(self._did, CMD_DOWN)
+        await self.coordinator.async_send_command(self._did, CID_CLOSE)
 
     async def async_stop_cover(self, **kwargs) -> None:
-        await self.coordinator.async_send_command(self._did, CMD_STOP)
+        await self.coordinator.async_send_command(self._did, CID_STOP)
 
     async def async_set_cover_position(self, **kwargs) -> None:
         position = kwargs["position"]  # HA scale: 0–100 open

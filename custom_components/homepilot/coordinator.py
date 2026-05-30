@@ -2,15 +2,14 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
 import logging
+from datetime import timedelta
 
 import aiohttp
-
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import API_DEVICES, CMD_POSITION, DOMAIN, SCAN_INTERVAL
+from .const import API_DEVICES, CID_POSITION, DOMAIN, SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,30 +46,24 @@ class HomepilotCoordinator(DataUpdateCoordinator[dict[int, dict]]):
         devices = payload.get("devices", [])
         return {dev["did"]: dev for dev in devices}
 
-    async def async_send_command(
-        self, did: int, name: str, value: int | None = None
-    ) -> None:
-        """Send a command to a single device."""
-        url = self.base_url + API_DEVICES
-        body: dict = {"did": did, "cid": 9, "goto": value, "command": 1}
-        if value is not None:
-            body["value"] = value
-        try:
-            async with self._get_session().post(
-                url, data=body, timeout=aiohttp.ClientTimeout(total=10)
-            ) as resp:
-                resp.raise_for_status()
-        except Exception as err:
-            _LOGGER.error("Command %s to device %s failed: %s", name, did, err)
+
+async def async_send_command(self, did: int, cid: int, goto: int | None = None) -> None:
+    """Send a command to a single device."""
+    url = self.base_url + API_DEVICES
+    body: dict = {"did": did, "cid": cid, "command": 1}
+    if goto is not None:
+        body["goto"] = goto
+    try:
+        async with self._get_session().post(
+            url, data=body, timeout=aiohttp.ClientTimeout(total=10)
+        ) as resp:
+            resp.raise_for_status()
+    except Exception as err:
+        _LOGGER.error("Command cid=%s to device %s failed: %s", cid, did, err)
 
     async def async_set_position(self, did: int, ha_position: int) -> None:
-        """
-        Set position, converting HA convention to Homepilot convention.
-        HA:          0 = closed, 100 = open
-        Homepilot:   0 = open,   100 = closed
-        """
         hp_position = 100 - ha_position
-        await self.async_send_command(did, CMD_POSITION, hp_position)
+        await self.async_send_command(did, cid=CID_POSITION, goto=hp_position)
 
     async def async_close(self) -> None:
         if self._session and not self._session.closed:
