@@ -1,0 +1,16 @@
+{
+  "domain": "homepilot",
+  "name": "homepilot",
+  "codeowners": [
+    "@mawoka-myblock"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://www.home-assistant.io/integrations/homepilot",
+  "homekit": {},
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "requirements": [],
+  "ssdp": [],
+  "zeroconf": []
+}
