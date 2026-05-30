@@ -46,20 +46,21 @@ class HomepilotCoordinator(DataUpdateCoordinator[dict[int, dict]]):
         devices = payload.get("devices", [])
         return {dev["did"]: dev for dev in devices}
 
-
-async def async_send_command(self, did: int, cid: int, goto: int | None = None) -> None:
-    """Send a command to a single device."""
-    url = self.base_url + API_DEVICES
-    body: dict = {"did": did, "cid": cid, "command": 1}
-    if goto is not None:
-        body["goto"] = goto
-    try:
-        async with self._get_session().post(
-            url, data=body, timeout=aiohttp.ClientTimeout(total=10)
-        ) as resp:
-            resp.raise_for_status()
-    except Exception as err:
-        _LOGGER.error("Command cid=%s to device %s failed: %s", cid, did, err)
+    async def async_send_command(
+        self, did: int, cid: int, goto: int | None = None
+    ) -> None:
+        """Send a command to a single device."""
+        url = self.base_url + API_DEVICES
+        body: dict = {"did": did, "cid": cid, "command": 1}
+        if goto is not None:
+            body["goto"] = goto
+        try:
+            async with self._get_session().post(
+                url, data=body, timeout=aiohttp.ClientTimeout(total=10)
+            ) as resp:
+                resp.raise_for_status()
+        except Exception as err:
+            _LOGGER.error("Command cid=%s to device %s failed: %s", cid, did, err)
 
     async def async_set_position(self, did: int, ha_position: int) -> None:
         hp_position = 100 - ha_position
